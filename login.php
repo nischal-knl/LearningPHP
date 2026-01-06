@@ -1,16 +1,30 @@
 <?php
+include 'connection.php';
 session_start();
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $name = $_POST["username"];
+    $name = trim($_POST["username"]);
     $password = $_POST["password"];
-    if($name == "Nischal" && $password == "nischal123" ){
-        $_SESSION["logged_in"] = true;
-        $_SESSION["user"] = $name;
-        header("Location:dashboard.php");
-        exit;
-        }else{
-            $error = "Invalid username and password";
+    $sql = "SELECT username, password FROM users WHERE username = ?";
+    
+    if($stmt = mysqli_prepare($conn, $sql)){
+        mysqli_stmt_bind_param($stmt, "s", $name);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if($user = mysqli_fetch_assoc($result)){
+            
+            if(password_verify($password, $user['password'])){
+                $_SESSION["logged_in"] = true;
+                $_SESSION["user"] = $user['username'];
+                header("Location: usertable.php");
+                exit;
+            } else {
+                $error = "Invalid password.";
+            }
+        } else {
+            $error = "No account found with that username.";
         }
+        mysqli_stmt_close($stmt);
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -28,6 +42,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <input type = "password" name = "password" required><br><br>
 <input type = "submit" name = "submit" value ="Submit"> 
 </form>
+<a href = "register.php">Register</a>
 </body>
 </html>
 <?php if(isset($error))echo $error;
