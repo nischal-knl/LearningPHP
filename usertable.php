@@ -1,52 +1,9 @@
 <?php
-include 'connection.php';
-session_start();
-if (!isset($_SESSION["logged_in"])) {
-    header("Location: login.php");
-    exit;
-}
+// Note: connection and login checks are inherited from index.php
 
 $sql = "SELECT user_id, username, email, dob FROM users WHERE deleted_at IS NULL";
 $result = mysqli_query($conn, $sql);
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User List</title>
-    <style>
-        table { 
-            width: 80%; 
-            border-collapse: collapse;
-             margin: 20px auto; 
-            }
-        th, td { 
-            border: 1px solid #ddd;
-             padding: 12px;
-              text-align: left; 
-            }
-        th { 
-            background-color: #f4f4f4; 
-        }
-        .btn { 
-            padding: 5px 10px;
-             text-decoration: none; 
-             border-radius: 3px;
-             }
-        .edit-btn { 
-            background-color: #ffc107;
-             color: black;
-             }
-        .delete-btn { 
-            background-color: #dc3545;
-             color: white;
-              border: none;
-               cursor: pointer;
-             }
-    </style>
-</head>
-<body>
 
 <h2 style="text-align:center;">User Management</h2>
 
@@ -76,6 +33,3 @@ $result = mysqli_query($conn, $sql);
     </tr>
     <?php endwhile; ?>
 </table>
-<a href = "logout.php">Logout</a>
-</body>
-</html>

@@ -15,7 +15,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             if(password_verify($password, $user['password'])){
                 $_SESSION["logged_in"] = true;
                 $_SESSION["user"] = $user['username'];
-                header("Location: usertable.php");
+                header("Location: index.php");
                 exit;
             } else {
                 $error = "Invalid password.";

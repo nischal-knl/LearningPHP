@@ -1,13 +1,13 @@
 <?php
 include 'connection.php';
-session_start();
 if (!isset($_GET['id'])) {
-    header("Location: list_users.php");
+    header("Location: index.php?page=usertable");
     exit;
 }
 
 $id = $_GET['id'];
 
+// --- UPDATE LOGIC ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = htmlspecialchars(trim($_POST['username']));
     $dob = $_POST['dob'];
@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt = mysqli_prepare($conn, $update_sql)) {
         mysqli_stmt_bind_param($stmt, "sssi", $username, $dob, $email, $id);
         if (mysqli_stmt_execute($stmt)) {
-            header("Location: usertable.php?msg=updated");
+            echo "<script>window.location.href='index.php?page=usertable&msg=updated';</script>";
             exit;
         } else {
             $error = "Update failed. Please try again.";
@@ -25,6 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_close($stmt);
     }
 }
+
+// --- FETCH LOGIC ---
 $sql = "SELECT username, dob, email FROM users WHERE user_id = ? AND deleted_at IS NULL";
 if ($stmt = mysqli_prepare($conn, $sql)) {
     mysqli_stmt_bind_param($stmt, "i", $id);
@@ -39,43 +41,11 @@ if (!$user) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit User</title>
-    <style>
-        .form-container { 
-            width: 300px;
-             margin: 50px auto;
-              font-family: sans-serif; 
-            }
-        input { 
-            width: 100%;
-             padding: 8px; 
-             margin: 10px 0; 
-             box-sizing: border-box; 
-            }
-        .save-btn { background: #28a745;
-             color: white;
-              border: none; 
-              cursor: pointer; 
-            }
-        .back-link { 
-            display: block;
-             margin-top: 10px; 
-             text-align: center;
-              color: #666;
-             }
-    </style>
-</head>
-<body>
-
 <div class="form-container">
     <h2>Edit User</h2>
     <?php if(isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
     
-    <form method="POST">
+    <form method="POST" action="index.php?page=edit_user&id=<?php echo $id; ?>">
         <label>Username:</label>
         <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
         
@@ -85,10 +55,7 @@ if (!$user) {
         <label>Email:</label>
         <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
         
-        <input type="submit" value="Update User" class="save-btn">
+        <input type="submit" value="Update User" class="save-btn" style="padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; width: 100%;">
     </form>
-    <a href="usertable.php" class="back-link">Cancel and Go Back</a>
+    <a href="index.php?page=usertable" class="back-link">Cancel and Go Back</a>
 </div>
-
-</body>
-</html>

@@ -2,6 +2,8 @@
 include 'connection.php';
 session_start();
 
+if (!isset($_SESSION["logged_in"])) { exit; }
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_id'])) {
     $id = $_POST['user_id'];
     $sql = "UPDATE users SET deleted_at = NOW() WHERE user_id = ?";
@@ -12,6 +14,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_id'])) {
         mysqli_stmt_close($stmt);
     }
 }
-header("Location: usertable.php"); 
+header("Location: index.php?page=usertable"); 
 exit;
 ?>
