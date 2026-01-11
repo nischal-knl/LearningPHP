@@ -4,24 +4,29 @@ session_start();
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     $name = trim($_POST["username"]);
     $password = $_POST["password"];
-    $sql = "SELECT username, password FROM users WHERE username = ?";
+    $sql = "SELECT username, password, role FROM users WHERE username = ? AND deleted_at IS NULL";
     
     if($stmt = mysqli_prepare($conn, $sql)){
         mysqli_stmt_bind_param($stmt, "s", $name);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
+
         if($user = mysqli_fetch_assoc($result)){
-            
             if(password_verify($password, $user['password'])){
                 $_SESSION["logged_in"] = true;
                 $_SESSION["user"] = $user['username'];
-                header("Location: index.php");
+                $_SESSION["role"] = $user['role']; 
+                if($user['role'] === 'admin') {
+                    header("Location: admin_dashboard.php");
+                } else {
+                    header("Location: dashboard.php");
+                }
                 exit;
             } else {
                 $error = "Invalid password.";
             }
         } else {
-            $error = "No account found with that username.";
+            $error = "No account found or account disabled.";
         }
         mysqli_stmt_close($stmt);
     }
